@@ -2,7 +2,7 @@
 name = "typecmd"
 version = "0.4.0"
 edition = "2024"
-description = "A TypeScript-like command line simulator with history support"
+description = "用Rust写的一个简单命令行"
 repository = "https://github.com/hunter-hongg/TypeCmd"
 license = "MIT"
 readme = "README.md"
