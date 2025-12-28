@@ -9,3 +9,5 @@ release:
 	rm -rf TypeCmd 
 	mkdir -p release 
 	mv TypeCmd$(VERSION).tar.xz release 
+install:
+	cp target/release/typecmd /usr/local/bin
