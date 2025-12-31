@@ -23,6 +23,7 @@ pub enum ShowSubcommand {
     Version,
     Variables,
     History(Option<usize>),
+    License, 
 }
 
 /// Clear command targets

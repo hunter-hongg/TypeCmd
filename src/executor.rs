@@ -55,7 +55,14 @@ impl TypeCmd {
             ShowSubcommand::Version => self.show_version(),
             ShowSubcommand::Variables => self.show_variables(),
             ShowSubcommand::History(limit) => self.show_history(limit),
+            ShowSubcommand::License => self.show_license(),
         }
+    }
+
+    fn show_license(&self) -> Result<Option<String>>{
+        let shows = "MIT license";
+        println!("LICENSE: {}", shows);
+        Ok(Some(shows.to_string()))
     }
     
     fn show_help(&self) -> Result<Option<String>> {
@@ -64,7 +71,7 @@ impl TypeCmd {
             版本: {}\n\
             历史记录: {} 条命令\n\n{}\
             {}基础命令:\n\
-              show                             - 显示信息: show [help|ver|vars|history]\n\
+              show                             - 显示信息: show [help|ver|vars|history|license]\n\
               exit    | quit  | q              - 退出程序\n\
               to      | var   | let   | set    - 设置变量: to <变量名> <值>\n\
               get     | which | echo           - 获取变量: get <变量名>\n\
@@ -74,7 +81,8 @@ impl TypeCmd {
               list    | ls                     - 列出所有变量\n\
               rm      | del   | unset          - 删除变量: rm <变量名>\n\
               clear   | cls                    - 清空所有变量或历史\n\
-              history | hist                   - 显示历史命令\n\n\
+              history | hist                   - 显示历史命令\n\
+              version | ver                    - 等同于show ver\n\
             历史命令使用:\n\
               !!                               - 执行上一条命令\n\
               ! n                              - 执行历史第n条命令\n\
