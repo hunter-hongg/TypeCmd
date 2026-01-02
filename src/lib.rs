@@ -7,6 +7,7 @@ pub mod error;
 pub mod colors;
 pub mod history;
 pub mod variables;
+pub mod variablesint;
 pub mod parser;
 pub mod command;
 pub mod executor;
