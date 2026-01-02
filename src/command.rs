@@ -6,6 +6,7 @@ pub enum Command {
     Set(String, String),
     Get(String),
     Copy(String, String),
+    ISet(String, i64),
     StringCmd(String),
     IntCmd(Option<i32>),
     List,

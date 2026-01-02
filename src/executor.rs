@@ -4,6 +4,7 @@ use crate::error::{TypeCmdError, Result};
 use crate::colors::{print_error, print_success, print_info, print_warn, print_gray, bold, PURPLE, CYAN, GREEN, RESET};
 use crate::history::HistoryManager;
 use crate::variables::VariableStore;
+use crate::variablesint::VariableStoreInt;
 use crate::parser::{parse_command, parse_to_command};
 use crate::command::{Command, ShowSubcommand, ClearTarget, HistorySubcommand};
 use crate::colors::BLUE;
@@ -11,6 +12,7 @@ use crate::colors::BLUE;
 /// Main TypeCmd application
 pub struct TypeCmd {
     variables: VariableStore,
+    variables_int: VariableStoreInt,
     history: HistoryManager,
     version: String,
 }
@@ -22,8 +24,9 @@ impl TypeCmd {
         
         Ok(TypeCmd {
             variables: VariableStore::new(),
+            variables_int: VariableStoreInt::new(), 
             history,
-            version: "0.4.0".to_string(),
+            version: "0.5.0".to_string(),
         })
     }
     
@@ -46,6 +49,7 @@ impl TypeCmd {
             Command::History(subcmd) => self.handle_history(subcmd),
             Command::LastCommand => self.handle_last_command(),
             Command::HistoryCommand(spec) => self.handle_history_command(&spec),
+            Command::ISet(var, val) => self.handle_iset(&var, val),
         }
     }
     
@@ -74,6 +78,7 @@ impl TypeCmd {
               show                             - 显示信息: show [help|ver|vars|history|license]\n\
               exit    | quit  | q              - 退出程序\n\
               to      | var   | let   | set    - 设置变量: to <变量名> <值>\n\
+              ito     | ivar  | ilet  | iset   - 设置整数变量: ito <变量名> <值>\n\
               get     | which | echo           - 获取变量: get <变量名>\n\
               copy    | cpvar                  - 复制变量: copy <新变量名> <旧变量名>\n\
               string  | str                    - 字符串输出: string <文本>\n\
@@ -165,6 +170,13 @@ impl TypeCmd {
     fn handle_set(&mut self, var: &str, value: &str) -> Result<Option<String>> {
         self.variables.set(var.to_string(), value.to_string());
         let msg = format!("变量 \"{}\" 已设置为 \"{}\"", var, value);
+        print_success(&msg);
+        Ok(Some(msg))
+    }
+
+    fn handle_iset(&mut self, var: &str, val: i64) -> Result<Option<String>> {
+        self.variables_int.set(var.to_string(), val);
+        let msg = format!("变量 \"{}\" 已设置为 \"{}\"", var, val);
         print_success(&msg);
         Ok(Some(msg))
     }
