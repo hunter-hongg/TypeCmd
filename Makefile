@@ -1,6 +1,6 @@
 all:
 	cargo build --release
-release: 
+rel: 
 	cargo build --release 
 	mkdir -p build 
 	cp target/release/typecmd build/
