@@ -59,6 +59,7 @@ pub fn parse_to_command(tokens: Vec<String>) -> Result<Command> {
         "show" => parse_show_command(args),
         "exit" | "quit" | "q" => parse_exit_command(args),
         "to" | "var" | "let" | "set" => parse_set_command(args),
+        "ito" | "ivar" | "ilet" | "iset" => parse_iset_command(args),
         "get" | "which" | "echo" => parse_get_command(args),
         "string" | "str" | "sprint" => parse_string_command(args),
         "int" | "num" => parse_int_command(args),
@@ -67,6 +68,12 @@ pub fn parse_to_command(tokens: Vec<String>) -> Result<Command> {
         "clear" | "cls" => parse_clear_command(args),
         "history" | "hist" => parse_history_command(args),
         "copy" | "cpvar" => parse_copy_command(args),
+        "ver" | "version" => {
+            let vstr = "ver";
+            let ccc = vec![vstr.to_string()];
+            let args = &ccc[0..];
+            parse_show_command(args)
+        }, 
         "!!" => Ok(Command::LastCommand),
         "!" => {
             if args.is_empty() {
@@ -109,6 +116,7 @@ fn parse_show_command(args: &[String]) -> Result<Command> {
                 Ok(Command::Show(ShowSubcommand::History(None)))
             }
         }
+        "lic" | "license" => Ok(Command::Show(ShowSubcommand::License)),
         _ => Err(TypeCmdError::Parse(format!("未知的show子命令: {}", args[0]))),
     }
 }
@@ -134,6 +142,20 @@ fn parse_set_command(args: &[String]) -> Result<Command> {
     let var_name = args[0].clone();
     let value = args[1..].join(" ");
     Ok(Command::Set(var_name, value))
+}
+
+fn parse_iset_command(args: &[String]) -> Result<Command> {
+    if args.len() < 2 {
+        return Err(TypeCmdError::InsufficientArgs(
+            "iset命令需要至少2个参数".to_string(),
+        ));
+    }
+    let varname = args[0].clone();
+    let value = args[1].clone();
+    match value.parse::<i64>(){
+        Ok(num) => Ok(Command::ISet(varname, num)),
+        Err(_) => Err(TypeCmdError::Parse("无效的数字".to_string()))
+    }
 }
 
 fn parse_get_command(args: &[String]) -> Result<Command> {
