@@ -61,6 +61,8 @@ pub fn parse_to_command(tokens: Vec<String>) -> Result<Command> {
         "to" | "var" | "let" | "set" => parse_set_command(args),
         "ito" | "ivar" | "ilet" | "iset" => parse_iset_command(args),
         "get" | "which" | "echo" => parse_get_command(args),
+        "iget" | "iwhich" | "iecho" => parse_iget_command(args),
+        "add" | "iadd" => parse_iadd_command(args),
         "string" | "str" | "sprint" => parse_string_command(args),
         "int" | "num" => parse_int_command(args),
         "ls" | "list" => Ok(Command::List),
@@ -166,6 +168,33 @@ fn parse_get_command(args: &[String]) -> Result<Command> {
     }
     
     Ok(Command::Get(args[0].clone()))
+}
+
+fn parse_iget_command(args: &[String]) -> Result<Command> {
+    if args.is_empty() {
+        return Err(TypeCmdError::InsufficientArgs(
+            "iget命令需要变量名".to_string(),
+        ))
+    }
+
+    Ok(Command::IGet(args[0].clone()))
+}
+
+fn parse_iadd_command(args: &[String]) -> Result<Command> {
+    if args.len() < 2 {
+        return Err(TypeCmdError::InsufficientArgs(
+            "iadd命令参数不足".to_string(),
+        ))
+    }
+    let var = args[0].clone();
+    let val2 = args[1].clone();
+    let val = match val2.parse::<i64>(){
+        Ok(val) => val, 
+        Err(_) => {
+            return Err(TypeCmdError::Parse("无效数字".to_string()))
+        }
+    };
+    Ok(Command::IAdd(var, val))
 }
 
 fn parse_string_command(args: &[String]) -> Result<Command> {

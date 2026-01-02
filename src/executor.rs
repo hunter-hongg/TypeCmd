@@ -1,5 +1,6 @@
 use std::io::{self, Write};
 use std::process::exit;
+use std::string;
 use crate::error::{TypeCmdError, Result};
 use crate::colors::{print_error, print_success, print_info, print_warn, print_gray, bold, PURPLE, CYAN, GREEN, RESET};
 use crate::history::HistoryManager;
@@ -50,6 +51,8 @@ impl TypeCmd {
             Command::LastCommand => self.handle_last_command(),
             Command::HistoryCommand(spec) => self.handle_history_command(&spec),
             Command::ISet(var, val) => self.handle_iset(&var, val),
+            Command::IGet(var) => self.handle_iget(&var),
+            Command::IAdd(var, val) => self.handle_iadd(&var, val),
         }
     }
     
@@ -76,18 +79,20 @@ impl TypeCmd {
             历史记录: {} 条命令\n\n{}\
             {}基础命令:\n\
               show                             - 显示信息: show [help|ver|vars|history|license]\n\
-              exit    | quit  | q              - 退出程序\n\
-              to      | var   | let   | set    - 设置变量: to <变量名> <值>\n\
-              ito     | ivar  | ilet  | iset   - 设置整数变量: ito <变量名> <值>\n\
-              get     | which | echo           - 获取变量: get <变量名>\n\
+              exit    | quit    | q            - 退出程序\n\
+              to      | var     | let   | set  - 设置变量: to <变量名> <值>\n\
+              ito     | ivar    | ilet  | iset - 设置整数变量: ito <变量名> <值>\n\
+              get     | which   | echo         - 获取变量: get <变量名>\n\
+              iget    | iwhich  | iecho        - 获取整数变量: iget <变量名>\n\
               copy    | cpvar                  - 复制变量: copy <新变量名> <旧变量名>\n\
               string  | str                    - 字符串输出: string <文本>\n\
               int     | num                    - 数字处理: int <数字>\n\
               list    | ls                     - 列出所有变量\n\
-              rm      | del   | unset          - 删除变量: rm <变量名>\n\
+              rm      | del     | unset        - 删除变量: rm <变量名>\n\
               clear   | cls                    - 清空所有变量或历史\n\
               history | hist                   - 显示历史命令\n\
               version | ver                    - 等同于show ver\n\
+              iadd    | add                    - 增加整数变量的值: iadd <变量名> <值>\n\
             历史命令使用:\n\
               !!                               - 执行上一条命令\n\
               ! n                              - 执行历史第n条命令\n\
@@ -194,6 +199,19 @@ impl TypeCmd {
         }
     }
 
+    fn handle_iget(&self, var: &str) -> Result<Option<String>> {
+        match  self.variables_int.get(var) {
+            Some(value) => {
+                let msg = format!("变量 {} 的值为: {}", var, value);
+                print_info(&msg);
+                Ok(Some(msg))
+            }
+            None => {
+                Err(TypeCmdError::UndefinedVariable(var.to_string()))
+            }
+        }
+    }
+
     fn handle_copy(&mut self, var: &str, oldvar: &str) -> Result<Option<String>> {
         // 先获取值并克隆，释放不可变借用后再设置新变量
         let value = match self.variables.get(oldvar) {
@@ -206,6 +224,21 @@ impl TypeCmd {
         // 现在不可变借用已结束，可以进行可变操作
         self.variables.set(var.to_string(), value.clone());
         let msg = format!("变量 \"{}\" 已设置为 变量\"{}\"的值 \"{}\"", var, oldvar, value);
+        print_success(&msg);
+        Ok(Some(msg))
+    }
+
+    fn handle_iadd(&mut self, var: &str, addn: i64) -> Result<Option<String>> {
+        let value = match self.variables_int.get(var) {
+            Some(value) => value.clone(), 
+            None => {
+                return Err(TypeCmdError::UndefinedVariable(var.to_string()));
+            },
+        };
+
+        self.variables_int.set(var.to_string(), value+ addn);
+        let msg = format!("变量 \"{}\" 已增加 {} 现在值为 {}", var, addn, value+addn);
+        print_success(&msg);
         Ok(Some(msg))
     }
     
