@@ -93,6 +93,7 @@ impl TypeCmd {
               history | hist                   - 显示历史命令\n\
               version | ver                    - 等同于show ver\n\
               iadd    | add                    - 增加整数变量的值: iadd <变量名> <值>\n\
+              iplus   | plus                   - 整数变量自增1: iplus <变量名>\n\
             历史命令使用:\n\
               !!                               - 执行上一条命令\n\
               ! n                              - 执行历史第n条命令\n\

@@ -63,6 +63,7 @@ pub fn parse_to_command(tokens: Vec<String>) -> Result<Command> {
         "get" | "which" | "echo" => parse_get_command(args),
         "iget" | "iwhich" | "iecho" => parse_iget_command(args),
         "add" | "iadd" => parse_iadd_command(args),
+        "iplus" | "plus" => parse_iplus_command(args),
         "string" | "str" | "sprint" => parse_string_command(args),
         "int" | "num" => parse_int_command(args),
         "ls" | "list" => Ok(Command::List),
@@ -195,6 +196,18 @@ fn parse_iadd_command(args: &[String]) -> Result<Command> {
         }
     };
     Ok(Command::IAdd(var, val))
+}
+
+fn parse_iplus_command(args: &[String]) -> Result<Command> {
+    if args.len() < 1 {
+        return Err(TypeCmdError::InsufficientArgs(
+            "iplus命令需要1个参数".to_string()
+        ))
+    }
+    let var = args[0].clone();
+    let val = "1".to_string();
+    let cc: [String; 2] = [var, val];
+    parse_iadd_command(&cc)
 }
 
 fn parse_string_command(args: &[String]) -> Result<Command> {
