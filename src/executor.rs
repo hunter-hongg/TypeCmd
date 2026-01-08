@@ -53,6 +53,8 @@ impl TypeCmd {
             Command::ISet(var, val) => self.handle_iset(&var, val),
             Command::IGet(var) => self.handle_iget(&var),
             Command::IAdd(var, val) => self.handle_iadd(&var, val),
+            Command::IMin(var, val) => self.handle_imin(&var, val),
+            Command::ICp(var, oldvar) => self.handle_icp(&var, &oldvar),
         }
     }
     
@@ -94,6 +96,8 @@ impl TypeCmd {
               version | ver                    - 等同于show ver\n\
               iadd    | add                    - 增加整数变量的值: iadd <变量名> <值>\n\
               iplus   | plus                   - 整数变量自增1: iplus <变量名>\n\
+              imin    | min                    - 减少整数变量的值: imin <变量名> <值>\n\
+              icp     | icopy   | icpvar       - 复制整数变量: icp <新变量名> <旧变量名>\n\
             历史命令使用:\n\
               !!                               - 执行上一条命令\n\
               ! n                              - 执行历史第n条命令\n\
@@ -228,6 +232,20 @@ impl TypeCmd {
         print_success(&msg);
         Ok(Some(msg))
     }
+    
+    fn handle_icp(&mut self, var: &str, oldvar: &str) -> Result<Option<String>> {
+        let value = match self.variables_int.get(oldvar) {
+            Some(val) => val.clone(), 
+            None => {
+                return Err(TypeCmdError::UndefinedVariable(oldvar.to_string()));
+            }
+        };
+        
+        self.variables_int.set(var.to_string(), value);
+        let msg = format!("变量 \"{}\" 已设置为 变量\"{}\"的值 \"{}\"", var, oldvar, value);
+        print_success(&msg);
+        Ok(Some(msg))
+    }
 
     fn handle_iadd(&mut self, var: &str, addn: i64) -> Result<Option<String>> {
         let value = match self.variables_int.get(var) {
@@ -243,6 +261,20 @@ impl TypeCmd {
         Ok(Some(msg))
     }
     
+    fn handle_imin(&mut self, var: &str, addn: i64) -> Result<Option<String>> {
+        let value = match self.variables_int.get(var) {
+            Some(value) => value.clone(), 
+            None => {
+                return Err(TypeCmdError::UndefinedVariable(var.to_string()));
+            },
+        };
+
+        self.variables_int.set(var.to_string(), value- addn);
+        let msg = format!("变量 \"{}\" 已减少 {} 现在值为 {}", var, addn, value-addn);
+        print_success(&msg);
+        Ok(Some(msg))
+    }
+
     fn handle_string(&self, text: &str) -> Result<Option<String>> {
         print_info(text);
         Ok(Some(text.to_string()))

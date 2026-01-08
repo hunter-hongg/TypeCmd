@@ -9,6 +9,8 @@ pub enum Command {
     ISet(String, i64),
     IGet(String),
     IAdd(String, i64),
+    IMin(String, i64),
+    ICp(String, String),
     StringCmd(String),
     IntCmd(Option<i32>),
     List,

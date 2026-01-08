@@ -64,6 +64,8 @@ pub fn parse_to_command(tokens: Vec<String>) -> Result<Command> {
         "iget" | "iwhich" | "iecho" => parse_iget_command(args),
         "add" | "iadd" => parse_iadd_command(args),
         "iplus" | "plus" => parse_iplus_command(args),
+        "imin" | "min" => parse_imin_command(args),
+        "icp" | "icopy" | "icpvar" => parse_icp_command(args),
         "string" | "str" | "sprint" => parse_string_command(args),
         "int" | "num" => parse_int_command(args),
         "ls" | "list" => Ok(Command::List),
@@ -99,6 +101,18 @@ fn parse_copy_command(args: &[String]) -> Result<Command> {
     }
     Ok(Command::Copy(args[0].clone(), args[1].clone()))
 }
+
+fn parse_icp_command(args: &[String]) -> Result<Command> {
+    if args.len() < 2 {
+        return Err(TypeCmdError::InsufficientArgs(
+            "icp命令需要至少2个参数".to_string(),
+        ));
+    } else if args.len() > 2 {
+        print_warn("icp命令参数过多, 忽略剩余参数");
+    }
+    Ok(Command::ICp(args[0].clone(), args[1].clone()))
+}
+
 fn parse_show_command(args: &[String]) -> Result<Command> {
     if args.is_empty() {
         return Ok(Command::Show(ShowSubcommand::Help));
@@ -196,6 +210,23 @@ fn parse_iadd_command(args: &[String]) -> Result<Command> {
         }
     };
     Ok(Command::IAdd(var, val))
+}
+
+fn parse_imin_command(args: &[String]) -> Result<Command> {
+    if args.len() < 2 {
+        return Err(TypeCmdError::InsufficientArgs(
+            "imin命令参数不足".to_string(),
+        ))
+    }
+    let var = args[0].clone();
+    let val2 = args[1].clone();
+    let val = match val2.parse::<i64>(){
+        Ok(val) => val, 
+        Err(_) => {
+            return Err(TypeCmdError::Parse("无效数字".to_string()))
+        }
+    };
+    Ok(Command::IMin(var, val))
 }
 
 fn parse_iplus_command(args: &[String]) -> Result<Command> {
